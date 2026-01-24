@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+
+# Environment / secrets
+config/secrets.env
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Databases
+*.db
+
+# Audio / temp
+*.mp3
+*.wav
+tmp/
