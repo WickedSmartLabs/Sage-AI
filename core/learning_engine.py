@@ -1,31 +1,28 @@
 import json
 from pathlib import Path
-from rapidfuzz import fuzz
+from typing import Dict, Optional
 
 
 class LearningEngine:
-    """
-    Handles user-taught phrases and meanings.
-    """
+    def __init__(self):
+        self.file = Path("data/learned_phrases.json")
+        self.file.parent.mkdir(exist_ok=True)
+        self.learned = self._load()
 
-    def __init__(self, path: str = "data/learned_phrases.json"):
-        self.path = Path(path)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        if not self.path.exists():
-            self.path.write_text("{}")
+    def _load(self) -> Dict[str, str]:
+        if self.file.exists():
+            return json.loads(self.file.read_text())
+        return {}
 
-    async def check_learned(self, text: str):
-        learned = json.loads(self.path.read_text())
-        text_lower = text.lower()
+    def _save(self):
+        self.file.write_text(json.dumps(self.learned, indent=2))
 
-        for phrase, meaning in learned.items():
-            score = fuzz.partial_ratio(text_lower, phrase.lower())
-            if score >= 80:
-                return meaning
-
+    async def check_learned(self, phrase: str) -> Optional[Dict[str, str]]:
+        key = phrase.lower().strip()
+        if key in self.learned:
+            return {"phrase": key, "meaning": self.learned[key]}
         return None
 
     async def learn(self, phrase: str, meaning: str):
-        learned = json.loads(self.path.read_text())
-        learned[phrase] = meaning
-        self.path.write_text(json.dumps(learned, indent=2))
+        self.learned[phrase.lower().strip()] = meaning
+        self._save()

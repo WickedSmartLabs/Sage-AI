@@ -1,37 +1,44 @@
 from dataclasses import dataclass
+from typing import Optional
+
 from core.conversation_manager import ConversationManager
 from core.learning_engine import LearningEngine
-from integrations.openai_client import OpenAIClient
 
 
 @dataclass
-class AIResult:
+class ProcessingResult:
     response_text: str
+    confidence: float
     source: str
-    confidence: float = 0.8
+    context_used: bool = False
 
 
 class AIEngine:
-    """
-    Central orchestration engine for Sage v2.
-    """
+    def __init__(self):
+        self.learning_engine = LearningEngine()
+        self.conversation_manager = ConversationManager()
 
-    def __init__(self, settings: dict):
-        self.settings = settings
-        self.conversation = ConversationManager()
-        self.learning = LearningEngine()
-        self.llm = OpenAIClient()
+    async def handle_input(self, prompt: str) -> ProcessingResult:
+        await self.conversation_manager.add_message(
+            user_id="default",
+            role="user",
+            message=prompt,
+        )
 
-    async def process_input(self, prompt: str, user_id: str = "default") -> AIResult:
-        await self.conversation.add_message(user_id, "user", prompt)
-
-        learned = await self.learning.check_learned(prompt)
+        learned = await self.learning_engine.check_learned(prompt)
         if learned:
-            return AIResult(learned, "learned", 1.0)
+            return ProcessingResult(
+                response_text=learned["meaning"],
+                confidence=1.0,
+                source="learned",
+            )
 
-        context = await self.conversation.get_context(user_id)
-        reply = await self.llm.chat(prompt, context)
-
-        await self.conversation.add_message(user_id, "assistant", reply)
-
-        return AIResult(reply, "llm")
+        return ProcessingResult(
+            response_text=(
+                f"I heard: '{prompt}'. "
+                "You can teach me by saying: "
+                "'Learn that X means Y.'"
+            ),
+            confidence=0.7,
+            source="simple",
+        )
