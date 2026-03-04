@@ -1,8 +1,8 @@
 # Sage-AI
 
-Sage-AI is a modular AI assistant framework designed to explore how conversational systems can combine structured reasoning, conversation memory, and incremental learning. The system exposes an AI engine through a FastAPI service, allowing users to interact with the assistant through a simple API.
+Sage-AI is a modular AI assistant framework that combines conversational context, rule-based learning, and API-driven interaction through a FastAPI service.
 
-The project focuses on building the underlying architecture of an AI assistant rather than a single-purpose chatbot. It demonstrates how conversational input can be processed through a reasoning engine that manages context, retrieves learned knowledge, and generates structured responses.
+The system explores how conversational assistants can be structured internally using separate components for conversation management, reasoning, and knowledge learning. Instead of acting as a simple chatbot, Sage-AI demonstrates how user input can flow through a processing engine that manages context, retrieves learned information, and generates structured responses.
 
 > ⚠️ **Status:** Active development. Core architecture is implemented while additional capabilities are being expanded.
 
@@ -18,9 +18,9 @@ Building more capable AI assistants requires an architecture that separates conv
 
 ## Solution
 
-Sage-AI implements a modular architecture that allows user input to flow through a structured processing pipeline.
+Sage-AI implements a modular assistant architecture that processes conversational input through a centralized AI engine.
 
-The system manages conversation context, checks previously learned knowledge, and generates responses through a centralized AI engine. This design enables the assistant to learn new information over time while maintaining a clear and explainable processing flow.
+The system records conversation history, checks for previously learned knowledge, and generates responses using a structured processing pipeline. This approach allows the assistant to gradually learn new information while maintaining a clear and explainable response process.
 
 ---
 
@@ -48,6 +48,34 @@ flowchart TD
 | **AI Engine** | Coordinates how user input is processed and determines how responses are generated. |
 | **Conversation Manager** | Tracks conversation history and manages contextual information. |
 | **Learning Engine** | Stores and retrieves knowledge learned during conversations. |
+
+### Processing Workflow
+
+1. A user sends a message to the `/chat` endpoint.
+2. The FastAPI service forwards the request to the AI engine.
+3. The conversation manager records the message in the conversation history.
+4. The learning engine checks for previously learned knowledge related to the prompt.
+5. If a match is found, the stored response is returned.
+6. Otherwise, the assistant returns a fallback response and invites the user to teach it new information.
+7. The response is returned to the API client with a confidence score and source label.
+
+---
+
+## Technology Stack
+
+**Application Layer**
+- Python
+- FastAPI
+- Pydantic
+
+**System Architecture**
+- Modular AI processing engine
+- Conversation state management
+- Rule-based knowledge learning
+
+**Development Tools**
+- Uvicorn
+- Async Python architecture
 
 ---
 
@@ -136,7 +164,7 @@ POST /chat
 ```
 User:  Learn that Python is my favorite language
 
-Later:
+Later...
 
 User:  What language do I like?
 Sage:  Python
@@ -150,17 +178,19 @@ This interaction demonstrates how the assistant can retain knowledge through the
 
 Planned improvements include:
 
-- [ ] Persistent memory storage using a database
-- [ ] Retrieval-augmented responses using external documents
-- [ ] Tool integrations (calculations, data queries)
-- [ ] Multi-user conversation support
-- [ ] Observability and logging
-- [ ] Deployment-ready containerization
+- Persistent memory storage using a database
+- Retrieval-augmented responses using external documents
+- Tool integrations (calculations, data queries)
+- Multi-user conversation support
+- Observability and logging
+- Deployment-ready containerization
 
 ---
 
 ## Purpose of the Project
 
-Sage-AI is intended as a systems engineering project exploring how conversational AI assistants can be structured internally. The goal is to build and iterate on the architecture behind AI assistants rather than focusing solely on model responses.
+Sage-AI is intended as a systems engineering project exploring how conversational AI assistants can be structured internally.
 
-The project emphasizes modular design, clear system boundaries, and experimentation with conversational learning systems.
+The project focuses on building the underlying architecture of AI assistants — separating conversation handling, reasoning logic, and knowledge storage — rather than focusing solely on model responses.
+
+This approach emphasizes modular design, clear system boundaries, and experimentation with conversational learning systems.
