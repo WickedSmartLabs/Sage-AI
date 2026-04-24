@@ -1,0 +1,42 @@
+# Sage AI -- Production stack (server)
+# Phase 9: migration from laptop to server is a deployment change, not a code change.
+# Core application code is identical -- only volumes, restart policy, and networking differ.
+#
+# Run: docker compose -f docker/docker-compose.prod.yml up -d
+
+services:
+  sage:
+    image: sage-ai:latest   # build on server: docker build -t sage-ai .
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    volumes:
+      - /srv/sage/logs:/app/logs
+      - /srv/sage/data:/app/data
+    restart: always
+
+  chroma:
+    image: chromadb/chroma:latest
+    # Not exposed externally -- internal network only
+    volumes:
+      - /srv/sage/data/chroma:/chroma/chroma
+    restart: always
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "127.0.0.1:6333:6333"   # localhost only -- do not expose publicly
+    volumes:
+      - /srv/sage/data/qdrant:/qdrant/storage
+    restart: always
+
+  # Optional: reverse proxy for HTTPS + Tailscale
+  # caddy:
+  #   image: caddy:alpine
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile
+  #   restart: always

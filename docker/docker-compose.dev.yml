@@ -1,0 +1,39 @@
+# Sage AI -- Development stack (laptop)
+# Run: docker compose -f docker/docker-compose.dev.yml up -d
+# Stop: docker compose -f docker/docker-compose.dev.yml down
+
+services:
+  sage:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    volumes:
+      - ../logs:/app/logs
+      - ../data:/app/data
+      # Mount source for hot reload in dev
+      - ..:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - chroma
+    restart: unless-stopped
+
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../data/chroma:/chroma/chroma
+    restart: unless-stopped
+
+  # Qdrant -- uncomment for Phase 5
+  # qdrant:
+  #   image: qdrant/qdrant:latest
+  #   ports:
+  #     - "6333:6333"
+  #   volumes:
+  #     - ../data/qdrant:/qdrant/storage
+  #   restart: unless-stopped
